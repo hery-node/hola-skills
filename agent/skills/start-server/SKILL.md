@@ -17,7 +17,7 @@ Start development servers with bun for both `server/` and `web/` directories in 
 ## Directory Structure Expected
 
 ```
-workspace/
+holacoder/source/
 ├── server/        # Backend server
 │   └── package.json (with "dev" script)
 └── web/          # Frontend web app

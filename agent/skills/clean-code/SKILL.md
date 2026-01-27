@@ -205,6 +205,8 @@ total = price * quantity * 0.85 if quantity > 100 else price * quantity
 - Use arrow functions for callbacks
 - Use template literals for string interpolation
 - Use destructuring where appropriate
+- Remove unused variables and functions and imports
+
 
 ## Refactoring Workflow
 
