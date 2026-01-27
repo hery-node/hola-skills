@@ -210,6 +210,34 @@ const app = new Elysia()
 3. **Match Validation** - Server and client rules should match
 4. **Descriptive Names** - Use `order_status`, not just `status`
 5. **Register Schema Types** - Always register both `register_type()` and `register_schema_type()`
+6. **Let Framework Handle Display** - Don't manually convert type values to labels (see anti-pattern below)
+
+## ⚠️ Common Anti-Pattern: Manual Type-to-Label Conversion
+
+**❌ DON'T** manually convert type values to labels in custom data tables:
+
+**Why this matters:**
+
+- The Hola meta framework **automatically** calls the type's `format()` function for display
+- Manual conversion is **redundant** and creates maintenance issues
+- When you change type labels, you'd have to update both the type definition AND the manual mapping
+- The framework's automatic conversion is **i18n-aware** and handles all edge cases
+
+**What the framework does automatically:**
+
+1. Reads the field's type (e.g., `"order_status"`)
+2. Looks up the registered client-side type
+3. Calls the type's `format(value, vue)` function
+4. Displays the formatted, translated label
+
+**When to use custom value functions:**
+
+Only use custom `value` functions in data tables when you need to:
+- Combine multiple fields: `(item) => item.firstName + " " + item.lastName`
+- Perform calculations: `(item) => item.price * item.quantity`
+- Add custom formatting beyond the type: `(item) => "#" + item.id`
+
+**Never** use them just to convert type values to labels.
 
 ## Common Patterns
 
