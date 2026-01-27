@@ -405,6 +405,166 @@ mode="crus"      // Create, read, update, search (no delete)
    - User: `mode="rs"` (read-only)
    - Editor: `mode="crus"` (no delete)
 
+## Custom Create Workflows
+
+### When to Override the Default Create Form
+
+Sometimes an entity requires a **complex creation process** that goes beyond a simple form. Examples:
+
+- **Multi-step wizards** - User onboarding with multiple screens
+- **Custom workflows** - Order creation with product selection, shipping, payment
+- **Complex validation** - Require external API calls or complex business logic
+- **Special UI** - Drag-and-drop interface, visual builders
+
+### Using `createRoute` Property
+
+The `h-crud` component supports a `createRoute` property to redirect create actions to a custom page:
+
+**Location:** `hola-web/src/views/[Entity]View.vue`
+
+```vue
+<template>
+  <h-crud
+    entity="order"
+    :sort-desc="[true]"
+    :sort-key="['createdAt']"
+    item-label-key="orderNumber"
+    create-route="/order/create-wizard">
+    <!-- When user clicks 'Add' button, navigates to /order/create-wizard -->
+  </h-crud>
+</template>
+```
+
+**How it works:**
+
+1. User clicks the "Add" button (create action)
+2. Instead of showing the default create form dialog
+3. Router navigates to the specified route
+4. Custom create page handles the complex workflow
+5. After completion, navigate back to the CRUD table
+
+### Implementation Pattern
+
+**Step 1: Add `createRoute` to CRUD table**
+
+```vue
+<!-- views/OrderView.vue -->
+<h-crud
+  entity="order"
+  create-route="/order/wizard"
+  ...>
+</h-crud>
+```
+
+**Step 2: Create custom creation page**
+
+```vue
+<!-- views/OrderWizard.vue -->
+<template>
+  <v-stepper v-model="step">
+    <!-- Step 1: Product Selection -->
+    <v-stepper-header>
+      <v-stepper-item :complete="step > 1" :value="1">
+        Products
+      </v-stepper-item>
+      <v-stepper-item :complete="step > 2" :value="2">
+        Shipping
+      </v-stepper-item>
+      <v-stepper-item :value="3">
+        Payment
+      </v-stepper-item>
+    </v-stepper-header>
+
+    <v-stepper-window>
+      <v-stepper-window-item :value="1">
+        <!-- Product selection UI -->
+      </v-stepper-window-item>
+      
+      <v-stepper-window-item :value="2">
+        <!-- Shipping form -->
+      </v-stepper-window-item>
+      
+      <v-stepper-window-item :value="3">
+        <!-- Payment form -->
+        <v-btn @click="submitOrder">Complete Order</v-btn>
+      </v-stepper-window-item>
+    </v-stepper-window>
+  </v-stepper>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      step: 1,
+      orderData: {}
+    };
+  },
+  
+  methods: {
+    async submitOrder() {
+      await this.$axios.post('/order', this.orderData);
+      // Navigate back to order list
+      this.$router.push('/orders');
+    }
+  }
+};
+</script>
+```
+
+**Step 3: Add route configuration**
+
+```javascript
+// router/index.js
+{
+  path: '/orders',
+  component: OrderView  // CRUD table view
+},
+{
+  path: '/order/wizard',
+  component: OrderWizard  // Custom create wizard
+}
+```
+
+### Alternative: Using `@create` Event
+
+For simpler cases, you can intercept the create action without routing:
+
+```vue
+<h-crud
+  entity="task"
+  @create="showCustomCreateDialog"
+  mode="cruds">
+</h-crud>
+
+<script>
+export default {
+  data() {
+    return {
+      showWizard: false
+    };
+  },
+  
+  methods: {
+    showCustomCreateDialog() {
+      this.showWizard = true;
+      // Show custom dialog/wizard component
+    }
+  }
+};
+</script>
+```
+
+**Note:** The `@create` event fires when the create button is clicked, allowing you to handle the creation flow entirely in JavaScript without navigation.
+
+### Best Practices
+
+1. **Use `createRoute` for complex flows** - Multi-step wizards, external integrations
+2. **Use `@create` event for simpler overrides** - Custom dialogs, pre-filled forms
+3. **Keep the default form when possible** - It's automatic and well-tested
+4. **Return to CRUD table after creation** - Use `router.push()` to navigate back
+5. **Show progress indicators** - Use steppers or progress bars for multi-step flows
+
 ## Quick Checklist
 
 When configuring a CRUD table:
