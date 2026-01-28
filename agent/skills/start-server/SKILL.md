@@ -17,7 +17,7 @@ Start development servers with bun for both `server/` and `web/` directories in 
 ## Directory Structure Expected
 
 ```
-project/
+source/
 ├── server/        # Backend server (default port: 3000)
 │   └── package.json (with "dev" script)
 └── web/          # Frontend web app (default port: 5173)

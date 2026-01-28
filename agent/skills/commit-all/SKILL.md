@@ -1,18 +1,17 @@
 ---
-name: well-done
-description: Commit and push all changes across git repositories. Use when the user says "well done", "done", "commit all", or indicates they have finished their work and want to save/push all changes.
+name: commit-all
+description: Commit and push all changes across git repositories. Use when the user says "commit all", "push all", "done", or indicates they have finished their work and want to save/push all changes.
 ---
 
-# Well Done - Commit All Changes
+# Commit All Changes
 
 When the user indicates they are done with their work, find all git repositories in the workspace and commit/push all changes.
 
 ## Trigger Phrases
 
-- "well done"
-- "done"
 - "commit all"
 - "push all"
+- "done"
 - "save all changes"
 - "I'm finished"
 
@@ -53,18 +52,21 @@ git commit -m "Update: brief description of changes"
 ```
 
 **Commit message guidelines:**
+
 - One line only, no multi-line messages
 - Start with action verb: "Update", "Add", "Fix", "Remove", "Refactor"
 - Keep under 50 characters if possible
 - Be specific but concise
 
 **Good examples:**
+
 - `"Add voice-input-corrector skill"`
 - `"Fix bug in user authentication"`
 - `"Update README with new instructions"`
 - `"Remove unused dependencies"`
 
 **Bad examples:**
+
 - `"Changes"` (too vague)
 - `"Fixed the bug that was causing issues with the login system when users tried to authenticate"` (too long)
 
