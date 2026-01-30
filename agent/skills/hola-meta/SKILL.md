@@ -44,6 +44,10 @@ Control field behavior per operation. **Default: true** (explicitly set false to
 | `search` | Show in search form | true    |
 | `list`   | Show in list view   | true    |
 
+> [!IMPORTANT] **Don't define values that match framework defaults.** Only specify flags to override defaults.
+>
+> ❌ `{ name: "x", sys: true, list: false, search: false }` — Redundant! `sys:true` already defaults list/search to false ✅ `{ name: "x", sys: true }` — Clean, relies on framework defaults ✅ `{ name: "x", sys: true, list: true }` — Overrides default to show in list
+
 ## Protected Fields
 
 ### `sys: true` - System Fields
