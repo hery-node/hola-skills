@@ -18,30 +18,81 @@ Add customized type definitions to the Hola meta-programming framework for entit
 ## Overview
 
 The Hola framework uses a type system for:
+
 1. **Server-side validation** - Data conversion and validation in the backend
 2. **Client-side validation** - Form input validation and display in the frontend
 3. **Schema validation** - TypeBox schema for request body validation
+
+## ⚠️ CRITICAL RULES
+
+### 1. NO Type Configuration in Field Attributes
+
+**❌ NEVER** add type configuration attributes to field definitions:
+
+```javascript
+// ❌ WRONG - enum_values is NOT a valid field attribute
+fields: [
+  { name: "status", type: "status", enum_values: [0, 1, 2] }, // ERROR!
+];
+
+// ✅ CORRECT - Define type separately, use in field
+register_type(int_enum_type("status", [0, 1, 2]));
+fields: [
+  { name: "status", type: "status" }, // OK
+];
+```
+
+**Forbidden attributes** in field definitions:
+
+- `enum_values` - Define in type, not field
+- `max_length` - Define in type validation
+- `min_value`, `max_value` - Define in type validation
+- `pattern` - Define in type validation
+- `accept` - Define in client-side type
+
+**Only these field attributes are allowed:**
+
+- `name`, `type`, `required`, `default`, `ref`, `link`, `delete`
+- `create`, `list`, `search`, `update`, `clone`, `sys`, `secure`, `group`, `view`
+
+### 2. Secure vs Password Types
+
+Choose the correct type for sensitive data:
+
+| Type       | Server           | Client       | Use Case                         |
+| ---------- | ---------------- | ------------ | -------------------------------- |
+| `password` | Hashed (bcrypt)  | Masked `***` | User passwords (cannot retrieve) |
+| `secure`   | Plaintext stored | Masked `***` | API keys/tokens (need raw value) |
+
+```javascript
+// ✅ CORRECT usage
+fields: [
+  { name: "user_password", type: "password" }, // Login - hash it
+  { name: "api_key", type: "secure" }, // API key - store as-is
+  { name: "stripe_secret", type: "secure" }, // Token - store as-is
+];
+```
 
 ## Quick Reference
 
 ### Type Categories
 
-| Category | Use Case | Example |
-|----------|----------|---------|
-| **Int Enum** | Fixed set of options (stored as integers) | Status, Category, Priority |
-| **Int Range** | Numeric range validation | Age (18-65), Rating (1-5) |
-| **Regex Pattern** | Format validation | SKU code, Phone number |
-| **Custom Logic** | Complex business rules | Discount rate, Custom calculations |
+| Category          | Use Case                                  | Example                            |
+| ----------------- | ----------------------------------------- | ---------------------------------- |
+| **Int Enum**      | Fixed set of options (stored as integers) | Status, Category, Priority         |
+| **Int Range**     | Numeric range validation                  | Age (18-65), Rating (1-5)          |
+| **Regex Pattern** | Format validation                         | SKU code, Phone number             |
+| **Custom Logic**  | Complex business rules                    | Discount rate, Custom calculations |
 
 ### Helper Functions
 
-| Function | Purpose | Example |
-|----------|---------|---------|
-| `int_enum_type(name, values)` | Create int enum | `int_enum_type("status", [0,1,2])` |
-| `int_range_type(name, min, max)` | Create range | `int_range_type("age", 18, 65)` |
-| `regex_type(name, pattern)` | Pattern validation | `regex_type("sku", /^[A-Z]{3}/)` |
-| `ok(value)` | Return success | `ok(42)` |
-| `err(type, value)` | Return error | `err("int", "abc")` |
+| Function                         | Purpose            | Example                            |
+| -------------------------------- | ------------------ | ---------------------------------- |
+| `int_enum_type(name, values)`    | Create int enum    | `int_enum_type("status", [0,1,2])` |
+| `int_range_type(name, min, max)` | Create range       | `int_range_type("age", 18, 65)`    |
+| `regex_type(name, pattern)`      | Pattern validation | `regex_type("sku", /^[A-Z]{3}/)`   |
+| `ok(value)`                      | Return success     | `ok(42)`                           |
+| `err(type, value)`               | Return error       | `err("int", "abc")`                |
 
 ## Implementation Steps
 
@@ -58,15 +109,11 @@ register_type(int_enum_type("order_status", [0, 1, 2, 3]));
 // 0=Pending, 1=Processing, 2=Shipped, 3=Delivered
 
 // Register TypeBox schema for request validation
-register_schema_type("order_status", () => 
-  t.Union([t.Literal(0), t.Literal(1), t.Literal(2), t.Literal(3)])
-);
+register_schema_type("order_status", () => t.Union([t.Literal(0), t.Literal(1), t.Literal(2), t.Literal(3)]));
 
 // Example 2: Int Range Type
 register_type(int_range_type("priority", 1, 5));
-register_schema_type("priority", () => 
-  t.Number({ minimum: 1, maximum: 5 })
-);
+register_schema_type("priority", () => t.Number({ minimum: 1, maximum: 5 }));
 
 // Example 3: Custom Type
 register_type({
@@ -76,11 +123,9 @@ register_type({
     if (isNaN(num)) return err("discount_rate", value);
     if (num < 0 || num > 100) return err("discount_rate", value);
     return ok(parseFloat(num.toFixed(2)));
-  }
+  },
 });
-register_schema_type("discount_rate", () => 
-  t.Number({ minimum: 0, maximum: 100 })
-);
+register_schema_type("discount_rate", () => t.Number({ minimum: 0, maximum: 100 }));
 ```
 
 ### Step 2: Client-Side Type Registration
@@ -98,12 +143,12 @@ register_type({
     { value: 0, text: vue.$t("order_status.pending") },
     { value: 1, text: vue.$t("order_status.processing") },
     { value: 2, text: vue.$t("order_status.shipped") },
-    { value: 3, text: vue.$t("order_status.delivered") }
+    { value: 3, text: vue.$t("order_status.delivered") },
   ],
   format: (value, vue) => {
     const statuses = ["pending", "processing", "shipped", "delivered"];
     return statuses[value] ? vue.$t(`order_status.${statuses[value]}`) : "";
-  }
+  },
 });
 
 // Example 2: Range Input
@@ -120,7 +165,7 @@ register_type({
       return (num >= 1 && num <= 5) || err;
     };
   },
-  format: (value) => `Priority ${value}`
+  format: (value) => `Priority ${value}`,
 });
 
 // Example 3: Custom Validation
@@ -136,7 +181,7 @@ register_type({
       return (!isNaN(num) && num >= 0 && num <= 100) || err;
     };
   },
-  format: (value) => value ? `${value.toFixed(2)}%` : ""
+  format: (value) => (value ? `${value.toFixed(2)}%` : ""),
 });
 ```
 
@@ -174,9 +219,22 @@ module.exports = init_router({
   fields: [
     { name: "status", type: "order_status", required: true, default: 0 },
     { name: "priority", type: "priority" },
-    { name: "discount", type: "discount_rate" }
-  ]
+    { name: "discount", type: "discount_rate" },
+  ],
 });
+```
+
+**⚠️ Default Value Validation:**
+
+Default values are validated against the type system during meta loading:
+
+```javascript
+// ✅ CORRECT - default value is valid for type
+{ name: "priority", type: "priority", default: 3 }  // OK: 3 is in range 1-5
+
+// ❌ WRONG - default value fails type validation
+{ name: "priority", type: "priority", default: 10 } // ERROR: 10 > max(5)
+{ name: "status", type: "order_status", default: 99 } // ERROR: not in [0,1,2,3]
 ```
 
 ## Critical: Initialization Order
@@ -198,9 +256,7 @@ const userRouter = (await import("./router/user.js")).default;
 const orderRouter = (await import("./router/order.js")).default;
 
 // 3. Build app
-const app = new Elysia()
-  .use(userRouter)
-  .use(orderRouter);
+const app = new Elysia().use(userRouter).use(orderRouter);
 ```
 
 ## Best Practices
@@ -233,6 +289,7 @@ const app = new Elysia()
 **When to use custom value functions:**
 
 Only use custom `value` functions in data tables when you need to:
+
 - Combine multiple fields: `(item) => item.firstName + " " + item.lastName`
 - Perform calculations: `(item) => item.price * item.quantity`
 - Add custom formatting beyond the type: `(item) => "#" + item.id`
@@ -242,6 +299,7 @@ Only use custom `value` functions in data tables when you need to:
 ## Common Patterns
 
 ### Pattern 1: Boolean Flag (Yes/No)
+
 ```javascript
 // Server
 register_type(int_enum_type("yes_no", [0, 1])); // 0=No, 1=Yes
@@ -253,12 +311,13 @@ register_type({
   input_type: "autocomplete",
   items: (vue) => [
     { value: 0, text: vue.$t("common.no") },
-    { value: 1, text: vue.$t("common.yes") }
-  ]
+    { value: 1, text: vue.$t("common.yes") },
+  ],
 });
 ```
 
 ### Pattern 2: Rating Scale
+
 ```javascript
 // Server
 register_type(int_range_type("rating", 1, 5));
@@ -270,13 +329,14 @@ register_type({
   input_type: "slider",
   min: 1,
   max: 5,
-  format: (value) => `⭐ ${value}`
+  format: (value) => `⭐ ${value}`,
 });
 ```
 
 ## For More Details
 
 See [references/type_guide.md](references/type_guide.md) for comprehensive documentation including:
+
 - All built-in types
 - Field attribute restrictions
 - Advanced customization

@@ -16,11 +16,13 @@ Ask clarifying questions to understand user ideas before implementation. This sk
 
 ## Question Strategy
 
-### Priority: Ask 2-3 Critical Questions First
+### Priority: Ask ONE Question at a Time
 
-Identify the most impactful gaps and ask only the essential questions upfront. Additional questions can be asked during implementation as needed. Ask those questions one by one.
+**IMPORTANT: Ask only ONE question per message.** Wait for the user's response before asking the next question.
 
-**Critical questions typically cover:**
+Identify the most impactful gaps and prioritize them, but ask them sequentially - never bundle multiple questions together.
+
+**Critical questions typically cover (in order of priority):**
 
 1. **Core intent** - What is the primary goal?
 2. **Constraints** - What limitations must be respected?
@@ -64,11 +66,13 @@ What specific business rules should apply to this feature?
 ## Question Flow
 
 1. **Identify gaps** - Review user's description for ambiguity
-2. **Prioritize** - Select 2-3 most critical questions
-3. **Format appropriately** - Use table format for choices, plain text for open-ended
-4. **Ask one at a time** - If many questions, batch 2-3 max per message
-5. **Summarize understanding** - Confirm comprehension before proceeding
-6. **Continue during work** - Ask additional questions as they arise
+2. **Prioritize** - Rank questions by importance
+3. **Ask ONE question** - Ask only the most critical question first
+4. **Wait for response** - Let the user answer before proceeding
+5. **Ask next question** - Continue with the next most important question
+6. **Format appropriately** - Use table format for choices, plain text for open-ended
+7. **Summarize understanding** - After all questions answered, confirm comprehension
+8. **Continue during work** - Ask additional questions as they arise during implementation
 
 ## Example Conversation
 
@@ -105,8 +109,9 @@ What specific business rules should apply to this feature?
 
 ## Anti-Patterns to Avoid
 
-- ❌ Asking too many questions at once (overwhelming)
+- ❌ **Asking multiple questions at once (NEVER DO THIS)** - Always ask ONE question per message
 - ❌ Asking obvious questions that can be inferred
 - ❌ Proceeding without clarifying critical ambiguities
 - ❌ Using only open-ended questions when options are clear
 - ❌ Re-asking questions already answered
+- ❌ Batching or bundling questions together - this overwhelms users
