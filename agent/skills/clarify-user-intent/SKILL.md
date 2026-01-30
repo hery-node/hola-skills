@@ -18,7 +18,7 @@ Ask clarifying questions to understand user ideas before implementation. This sk
 
 ### Priority: Ask 2-3 Critical Questions First
 
-Identify the most impactful gaps and ask only the essential questions upfront. Additional questions can be asked during implementation as needed.
+Identify the most impactful gaps and ask only the essential questions upfront. Additional questions can be asked during implementation as needed. Ask those questions one by one.
 
 **Critical questions typically cover:**
 
