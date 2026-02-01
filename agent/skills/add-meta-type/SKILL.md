@@ -55,23 +55,28 @@ fields: [
 - `name`, `type`, `required`, `default`, `ref`, `link`, `delete`
 - `create`, `list`, `search`, `update`, `clone`, `sys`, `secure`, `group`, `view`
 
-### 2. Secure vs Password Types
+### 2. Security Types: password vs secret
 
 Choose the correct type for sensitive data:
 
-| Type       | Server           | Client       | Use Case                         |
-| ---------- | ---------------- | ------------ | -------------------------------- |
-| `password` | Hashed (bcrypt)  | Masked `***` | User passwords (cannot retrieve) |
-| `secure`   | Plaintext stored | Masked `***` | API keys/tokens (need raw value) |
+| Type       | Server                              | Client       | Use Case                              |
+| ---------- | ----------------------------------- | ------------ | ------------------------------------- |
+| `password` | MD5 hash (irreversible)             | Masked `***` | User login passwords (cannot retrieve)|
+| `secret`   | AES-256-CBC encrypted (reversible)  | Masked `***` | API keys/tokens (can decrypt for use) |
 
 ```javascript
 // ✅ CORRECT usage
 fields: [
-  { name: "user_password", type: "password" }, // Login - hash it
-  { name: "api_key", type: "secure" }, // API key - store as-is
-  { name: "stripe_secret", type: "secure" }, // Token - store as-is
+  { name: "user_password", type: "password" }, // Login - one-way hash
+  { name: "api_key", type: "secret" }, // API key - encrypted, can decrypt
+  { name: "stripe_secret", type: "secret" }, // Token - encrypted, can decrypt
 ];
+
+// To decrypt when needed (server-side only):
+import { decrypt_secret } from "hola-server";
+const plainKey = decrypt_secret(record.api_key);
 ```
+
 
 ## Quick Reference
 

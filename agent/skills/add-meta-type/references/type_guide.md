@@ -151,15 +151,16 @@ register_type({
 
 ### Basic Types
 
-| Type       | Server Conversion           | Client Input   | Use Case                |
-| ---------- | --------------------------- | -------------- | ----------------------- |
-| `string`   | Trim whitespace, default "" | `v-text-field` | Short text (≤255 chars) |
-| `lstr`     | Passthrough string          | `v-textarea`   | Long string             |
-| `text`     | Passthrough string          | Rich editor    | Long formatted text     |
-| `password` | Encrypt with hash           | Password input | Secure credentials      |
-| `file`     | Passthrough                 | File upload    | File attachments        |
-| `date`     | Passthrough string          | Date picker    | Date only               |
-| `enum`     | Passthrough string          | Autocomplete   | String options          |
+| Type       | Server Conversion                   | Client Input   | Use Case                     |
+| ---------- | ----------------------------------- | -------------- | ---------------------------- |
+| `string`   | Trim whitespace, default ""         | `v-text-field` | Short text (≤255 chars)      |
+| `lstr`     | Passthrough string                  | `v-textarea`   | Long string                  |
+| `text`     | Passthrough string                  | Rich editor    | Long formatted text          |
+| `password` | MD5 hash (irreversible)             | Password input | User login passwords         |
+| `secret`   | AES-256-CBC encrypted (reversible)  | Password input | API keys/tokens              |
+| `file`     | Passthrough                         | File upload    | File attachments             |
+| `date`     | Passthrough string                  | Date picker    | Date only                    |
+| `enum`     | Passthrough string                  | Autocomplete   | String options               |
 
 ### Numeric Types
 
