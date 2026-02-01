@@ -68,6 +68,46 @@ const apply_ref_filter = (query, ref_filter, ref_by_entity) => {
 | Wildcard fallback | `"*": { deleted: false }` | Default filter for unlisted entities |
 | No filter | `"*": {}` | Show all records to unlisted entities |
 
+## Client Usage (hola-web)
+
+### API Function
+
+```typescript
+// axios.ts
+export const getRefLabels = async (entity: string, refByEntity: string, query?: string) => {
+  const url = "/" + entity + "/ref";
+  const result = await axiosGet(url, { ref_by_entity: refByEntity, query });
+  return result.data ?? [];
+};
+```
+
+### Vue Form Example
+
+```vue
+<template>
+  <v-autocomplete
+    v-model="form.product_id"
+    :items="productOptions"
+    item-title="title"
+    item-value="value"
+    label="Product"
+  />
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { getRefLabels } from '@/core/axios';
+
+const form = ref({ product_id: null });
+const productOptions = ref([]);
+
+onMounted(async () => {
+  // Pass "order" as ref_by_entity to get filtered products
+  productOptions.value = await getRefLabels('product', 'order');
+});
+</script>
+```
+
 ## Flow Summary
 
 1. Client: `GET /product/ref?ref_by_entity=order`
